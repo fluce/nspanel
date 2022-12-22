@@ -1,0 +1,60 @@
+# NSPanel YAML by marcfager. Please check github for credits: https://github.com/marcfager/nspanel-mf
+# Version 2022-01-19
+
+substitutions:
+  # Name the device and it's entities
+  device_name: nspanel-dev2
+
+# Example config.yaml
+esphome:
+  name: nspanel_dev
+  comment: $device_name
+
+esp32:
+  board: esp32dev
+
+# Wifi settings. Add these to your secrets.yaml. fast_connect must be true for a hidden ssid.
+wifi:
+  ssid: !secret ssid
+  password: !secret wifi_pwd
+  fast_connect: !secret wifi_fast_connect
+
+# API. Add api_pwd to your secrets.yaml.
+api:
+  password: !secret api_pwd
+  services:
+    # Service to play a rtttl tone
+    - service: play_rtttl
+      variables:
+        song_str: string
+      then:
+        - rtttl.play:
+            rtttl: !lambda 'return song_str;'
+
+output:
+  # Buzzer for playing tones
+  - platform: ledc
+    id: buzzer_out
+    pin:
+      number: 21
+      
+rtttl:
+  id: buzzer
+  output: buzzer_out
+
+# Logger. Disable the temperature sensor etc. to focus on the HMI development
+logger:
+  baud_rate: 115200
+  level: VERBOSE
+  logs:
+    sensor: WARN
+    resistance: WARN
+    text_sensor: WARN
+    ntc: WARN
+    #nextion: VERBOSE
+
+# OTA (Over the air updates) password. Add to your secrets.yaml
+ota:
+  password: !secret ota_pwd
+
+
